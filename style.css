@@ -1,0 +1,32 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.player {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.progress-container {
+    width: 100%;
+}
+
+#playlist ul {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0;
+    list-style-type: none;
+}
+
+#playlist li {
+    cursor: pointer;
+    padding: 10px;
+    background-color: #f1f1f1;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
+#playlist li:hover, #playlist li.active {
+    background-color: #007bff;
+    color: white;
+}
