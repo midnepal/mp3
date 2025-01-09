@@ -1,0 +1,5 @@
+[
+    { "title": "Song 1", "url": "/server/song1.mp3" },
+    { "title": "Song 2", "url": "/server/song2.mp3" },
+    ...
+]
