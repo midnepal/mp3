@@ -4,40 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Advanced MP3 Player</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #222;
+            color: white;
+            font-family: 'Arial', sans-serif;
+        }
+        .player-container {
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+            background-color: #333;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .thumbnail {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            animation: thumbnailAnim 5s infinite;
+        }
+        @keyframes thumbnailAnim {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .progress-bar {
+            height: 5px;
+            background-color: #4caf50;
+        }
+        .playlist {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .playlist li {
+            cursor: pointer;
+            padding: 10px;
+            margin: 5px;
+            background-color: #444;
+            border-radius: 5px;
+        }
+        .playlist li:hover {
+            background-color: #555;
+        }
+        .btn {
+            background-color: #4caf50;
+            color: white;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="player card shadow">
-            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                <h5>Advanced MP3 Player</h5>
-                <button id="download-btn" class="btn btn-sm btn-warning">Download</button>
-            </div>
-            <div class="card-body text-center">
-                <div class="thumbnail-wrapper">
-                    <img id="thumbnail" src="default-thumbnail.jpg" alt="Thumbnail" class="thumbnail animated">
-                </div>
-                <h6 id="song-title" class="mt-3">No Song Playing</h6>
-                <audio id="audio-player" src="" preload="metadata"></audio>
-                <div class="controls mt-3">
-                    <button id="prev-btn" class="btn btn-secondary">⏮️</button>
-                    <button id="play-btn" class="btn btn-primary">▶️</button>
-                    <button id="next-btn" class="btn btn-secondary">⏭️</button>
-                </div>
-                <div class="progress mt-3">
-                    <input id="progress-bar" type="range" class="form-range" value="0" min="0" max="100">
-                </div>
-                <div class="volume-control mt-3">
-                    <label for="volume-slider">Volume</label>
-                    <input id="volume-slider" type="range" class="form-range" min="0" max="1" step="0.1" value="0.5">
-                </div>
-            </div>
-            <ul id="playlist" class="list-group list-group-flush"></ul>
+    <div class="player-container">
+        <h2>MP3 Player</h2>
+        <div class="thumbnail-container">
+            <img id="thumbnail" src="https://via.placeholder.com/300" alt="Song Thumbnail" class="thumbnail">
         </div>
+        <div class="controls mt-4">
+            <button id="playPauseBtn" class="btn btn-lg">
+                <i id="playPauseIcon" class="fa fa-play"></i> Play
+            </button>
+        </div>
+        <div class="progress mt-3">
+            <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+        </div>
+        <ul id="playlist" class="playlist"></ul>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        const audioElement = new Audio();
+        const playPauseBtn = document.getElementById("playPauseBtn");
+        const playPauseIcon = document.getElementById("playPauseIcon");
+        const progressBar = document.getElementById("progressBar");
+        const playlistContainer = document.getElementById("playlist");
+        const songsUrl = 'https://sydneyhelps.com/mp3/upload/files/ai/'; // URL to fetch songs
+
+        const songs = [
+            { title: "Song 1", file: "song1.mp3", thumbnail: "https://via.placeholder.com/300" },
+            { title: "Song 2", file: "song2.mp3", thumbnail: "https://via.placeholder.com/300" },
+            { title: "Song 3", file: "song3.mp3", thumbnail: "https://via.placeholder.com/300" }
+        ];
+
+        // Load playlist
+        function loadPlaylist() {
+            songs.forEach((song, index) => {
+                const listItem = document.createElement('li');
+                listItem.textContent = song.title;
+                listItem.onclick = () => playSong(index);
+                playlistContainer.appendChild(listItem);
+            });
+        }
+
+        // Play selected song
+        function playSong(index) {
+            const song = songs[index];
+            audioElement.src = songsUrl + song.file;
+            document.getElementById("thumbnail").src = song.thumbnail;
+            audioElement.play();
+            playPauseBtn.innerHTML = '<i class="fa fa-pause"></i> Pause';
+            playPauseIcon.classList.remove('fa-play');
+            playPauseIcon.classList.add('fa-pause');
+        }
+
+        // Toggle play/pause
+        playPauseBtn.onclick = () => {
+            if (audioElement.paused) {
+                audioElement.play();
+                playPauseBtn.innerHTML = '<i class="fa fa-pause"></i> Pause';
+                playPauseIcon.classList.remove('fa-play');
+                playPauseIcon.classList.add('fa-pause');
+            } else {
+                audioElement.pause();
+                playPauseBtn.innerHTML = '<i class="fa fa-play"></i> Play';
+                playPauseIcon.classList.remove('fa-pause');
+                playPauseIcon.classList.add('fa-play');
+            }
+        };
+
+        // Update progress bar
+        audioElement.addEventListener('timeupdate', () => {
+            const progress = (audioElement.currentTime / audioElement.duration) * 100;
+            progressBar.style.width = progress + '%';
+        });
+
+        // Load the playlist on page load
+        loadPlaylist();
+    </script>
 </body>
 </html>
