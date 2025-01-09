@@ -20,15 +20,17 @@
             padding: 20px;
         }
         .thumbnail {
-            width: 100%;
-            height: auto;
-            border-radius: 10px;
-            animation: thumbnailAnim 5s infinite;
-        }
-        @keyframes thumbnailAnim {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+    width: 150px;
+    height: 150px;
+    border-radius: 50%; /* Make the image circular */
+    animation: thumbnailSpin 5s linear infinite; /* Spinning animation */
+    object-fit: cover; /* Ensures the image covers the circular area */
+    margin-bottom: 20px;
+}
+
+@keyframes thumbnailSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
         }
         .progress-bar {
             height: 5px;
