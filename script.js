@@ -1,100 +1,91 @@
-const audioPlayer = document.getElementById('audioPlayer');
-const playPauseBtn = document.getElementById('playPauseBtn');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-const progressBar = document.getElementById('progressBar');
-const volumeControl = document.getElementById('volumeControl');
-const nowPlaying = document.getElementById('nowPlaying');
-const playlistContainer = document.getElementById('playlist').querySelector('ul');
+const songsFolder = "https://sydneyhelps.com/mp3/upload/files/ai/";
+const playlistEl = document.getElementById("playlist");
+const audioPlayer = document.getElementById("audio-player");
+const playBtn = document.getElementById("play-btn");
+const nextBtn = document.getElementById("next-btn");
+const prevBtn = document.getElementById("prev-btn");
+const progressBar = document.getElementById("progress-bar");
+const volumeSlider = document.getElementById("volume-slider");
+const songTitle = document.getElementById("song-title");
+const thumbnail = document.getElementById("thumbnail");
+const downloadBtn = document.getElementById("download-btn");
 
 let songs = [];
-let currentSongIndex = 0;
+let currentIndex = 0;
 
 // Fetch songs from the server
-fetch('/songs')
-    .then(response => response.json())
-    .then(data => {
-        songs = data;
-        populatePlaylist();
-    })
-    .catch(err => console.error('Error fetching songs:', err));
-
-// Populate playlist dynamically
-function populatePlaylist() {
-    playlistContainer.innerHTML = '';
-    songs.forEach((song, index) => {
-        const li = document.createElement('li');
-        li.textContent = song.title;
-        li.addEventListener('click', () => loadSong(index));
-        playlistContainer.appendChild(li);
-    });
-    loadSong(0);
+async function fetchSongs() {
+    try {
+        const response = await fetch(songsFolder);
+        const text = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, "text/html");
+        const links = Array.from(doc.querySelectorAll("a[href$='.mp3']"));
+        songs = links.map(link => ({
+            title: decodeURIComponent(link.textContent),
+            url: `${songsFolder}${link.getAttribute("href")}`,
+        }));
+        renderPlaylist();
+    } catch (error) {
+        console.error("Error fetching songs:", error);
+    }
 }
 
-// Load and play selected song
-function loadSong(index) {
-    currentSongIndex = index;
-    const selectedSong = songs[currentSongIndex];
-    audioPlayer.src = selectedSong.url;
-    nowPlaying.textContent = `Now Playing: ${selectedSong.title}`;
-    updateActivePlaylistItem();
-    playAudio();
+// Render the playlist
+function renderPlaylist() {
+    playlistEl.innerHTML = songs.map((song, index) => `
+        <li class="list-group-item">
+            <span>${song.title}</span>
+            <button class="btn btn-sm btn-success" onclick="playSong(${index})">Play</button>
+        </li>
+    `).join("");
 }
 
-// Update active playlist item
-function updateActivePlaylistItem() {
-    const items = playlistContainer.querySelectorAll('li');
-    items.forEach((item, idx) => {
-        item.classList.toggle('active', idx === currentSongIndex);
-    });
-}
-
-// Play audio
-function playAudio() {
+// Play a song
+function playSong(index) {
+    currentIndex = index;
+    audioPlayer.src = songs[index].url;
+    songTitle.textContent = songs[index].title;
+    thumbnail.src = "thumbnail.jpg"; // Set a relevant thumbnail for each song
     audioPlayer.play();
-    playPauseBtn.textContent = 'Pause';
+    updateDownloadButton();
 }
 
-// Pause audio
-function pauseAudio() {
-    audioPlayer.pause();
-    playPauseBtn.textContent = 'Play';
+// Update the download button
+function updateDownloadButton() {
+    downloadBtn.href = songs[currentIndex].url;
+    downloadBtn.download = songs[currentIndex].title;
 }
 
-// Play/Pause button
-playPauseBtn.addEventListener('click', () => {
+// Handle play/pause
+playBtn.addEventListener("click", () => {
     if (audioPlayer.paused) {
-        playAudio();
+        audioPlayer.play();
+        playBtn.textContent = "⏸️";
     } else {
-        pauseAudio();
+        audioPlayer.pause();
+        playBtn.textContent = "▶️";
     }
 });
 
-// Previous button
-prevBtn.addEventListener('click', () => {
-    if (currentSongIndex > 0) {
-        loadSong(currentSongIndex - 1);
-    }
-});
+// Handle next/prev
+nextBtn.addEventListener("click", () => playSong((currentIndex + 1) % songs.length));
+prevBtn.addEventListener("click", () => playSong((currentIndex - 1 + songs.length) % songs.length));
 
-// Next button
-nextBtn.addEventListener('click', () => {
-    if (currentSongIndex < songs.length - 1) {
-        loadSong(currentSongIndex + 1);
-    }
-});
-
-// Progress bar update
-audioPlayer.addEventListener('timeupdate', () => {
+// Update progress bar
+audioPlayer.addEventListener("timeupdate", () => {
     progressBar.value = (audioPlayer.currentTime / audioPlayer.duration) * 100 || 0;
 });
 
-// Change playback position
-progressBar.addEventListener('input', () => {
+// Seek using progress bar
+progressBar.addEventListener("input", () => {
     audioPlayer.currentTime = (progressBar.value / 100) * audioPlayer.duration;
 });
 
-// Volume control
-volumeControl.addEventListener('input', () => {
-    audioPlayer.volume = volumeControl.value;
+// Adjust volume
+volumeSlider.addEventListener("input", () => {
+    audioPlayer.volume = volumeSlider.value;
 });
+
+// Fetch songs on page load
+fetchSongs();
