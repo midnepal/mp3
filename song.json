@@ -1,5 +1,14 @@
 [
-    { "title": "Song 1", "url": "/server/song1.mp3" },
-    { "title": "Song 2", "url": "/server/song2.mp3" },
-    ...
+  {
+    "title": "Song 1",
+    "url": "https://sydneyhelps.com/mp3/upload/files/ai/Prem%20diwas.mp3",
+    "playCount": 0,
+    "downloadCount": 0
+  },
+  {
+    "title": "Song 2",
+    "url": "https://sydneyhelps.com/mp3/upload/files/ai/gajal.mp3",
+    "playCount": 0,
+    "downloadCount": 0
+  }
 ]
