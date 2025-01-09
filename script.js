@@ -89,3 +89,31 @@ volumeSlider.addEventListener("input", () => {
 
 // Fetch songs on page load
 fetchSongs();
+async function fetchSongs() {
+    try {
+        const response = await fetch(songsFolder);
+        const text = await response.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(text, "text/html");
+
+        // Parse links ending with `.mp3`
+        const links = Array.from(doc.querySelectorAll("a[href$='.mp3']"));
+        
+        if (links.length === 0) {
+            console.warn("No MP3 files found on the server.");
+            playlistEl.innerHTML = "<li class='list-group-item'>No songs available.</li>";
+            return;
+        }
+
+        // Populate songs array
+        songs = links.map(link => ({
+            title: decodeURIComponent(link.textContent.trim()),
+            url: `${songsFolder}${link.getAttribute("href").trim()}`,
+        }));
+
+        renderPlaylist();
+    } catch (error) {
+        console.error("Error fetching songs:", error);
+        playlistEl.innerHTML = "<li class='list-group-item'>Failed to load songs.</li>";
+    }
+}
